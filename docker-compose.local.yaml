@@ -102,7 +102,9 @@ services:
   data-intake-service:
     container_name: data-intake-service
     hostname: data-intake-service
-    image: ghcr.io/saludtechalpes/saludtechalpes-data-intake-service:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     networks:
       - db_net
       - pulsar
