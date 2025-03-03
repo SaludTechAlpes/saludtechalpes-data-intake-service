@@ -102,16 +102,7 @@ services:
   data-intake-service:
     container_name: data-intake-service
     hostname: data-intake-service
-    develop:
-      watch:
-        - action: rebuild
-          path: ./src
-          target: /app
-          ignore:
-            - .git
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/saludtechalpes/saludtechalpes-data-intake-service:latest
     networks:
       - db_net
       - pulsar
