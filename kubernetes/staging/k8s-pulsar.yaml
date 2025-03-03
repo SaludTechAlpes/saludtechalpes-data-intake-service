@@ -1,0 +1,152 @@
+#########################################
+# Zookeeper Deployment & Service
+#########################################
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zookeeper
+  labels:
+    app: zookeeper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zookeeper
+  template:
+    metadata:
+      labels:
+        app: zookeeper
+    spec:
+      containers:
+        - name: zookeeper
+          image: apachepulsar/pulsar:latest
+          command: ["/bin/bash", "-c"]
+          args:
+            - >
+              bin/apply-config-from-env.py conf/zookeeper.conf && 
+              bin/generate-zookeeper-config.sh conf/zookeeper.conf &&
+              exec bin/pulsar zookeeper
+          env:
+            - name: metadataStoreUrl
+              value: "zk:zookeeper:2181"
+          ports:
+            - containerPort: 2181
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zookeeper
+spec:
+  selector:
+    app: zookeeper
+  ports:
+    - protocol: TCP
+      port: 2181
+      targetPort: 2181
+---
+#########################################
+# Bookkeeper Deployment & Service
+#########################################
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bookkeeper
+  labels:
+    app: bookkeeper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bookkeeper
+  template:
+    metadata:
+      labels:
+        app: bookkeeper
+    spec:
+      containers:
+        - name: bookie
+          image: apachepulsar/pulsar:latest
+          command: ["/bin/bash", "-c"]
+          args:
+            - >
+              bin/apply-config-from-env.py conf/bookkeeper.conf &&
+              exec bin/pulsar bookie
+          env:
+            - name: metadataServiceUri
+              value: "metadata-store:zk:zookeeper:2181"
+            - name: clusterName
+              value: "cluster-a"
+          ports:
+            - containerPort: 3181
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bookkeeper
+spec:
+  selector:
+    app: bookkeeper
+  ports:
+    - protocol: TCP
+      port: 3181
+      targetPort: 3181
+---
+#########################################
+# Broker Deployment & Service
+#########################################
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pulsar-broker
+  labels:
+    app: pulsar-broker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pulsar-broker
+  template:
+    metadata:
+      labels:
+        app: pulsar-broker
+    spec:
+      containers:
+        - name: broker
+          image: apachepulsar/pulsar:latest
+          command: ["/bin/bash", "-c"]
+          args:
+            - >
+              bin/apply-config-from-env.py conf/broker.conf &&
+              exec bin/pulsar broker
+          env:
+            - name: metadataStoreUrl
+              value: "zk:zookeeper:2181"
+            - name: zookeeperServers
+              value: "zookeeper:2181"
+            - name: clusterName
+              value: "cluster-a"
+            - name: advertisedAddress
+              value: "broker"
+            - name: advertisedListeners
+              value: "internal:pulsar://broker:6650,external:pulsar://localhost:6650"
+          ports:
+            - containerPort: 6650  # Pulsar Binary Protocol
+            - containerPort: 8080  # Pulsar HTTP API
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pulsar-broker
+spec:
+  selector:
+    app: pulsar-broker
+  ports:
+    - protocol: TCP
+      name: pulsar-port
+      port: 6650
+      targetPort: 6650
+    - protocol: TCP
+      name: http-port
+      port: 8080
+      targetPort: 8080
+  type: LoadBalancer
