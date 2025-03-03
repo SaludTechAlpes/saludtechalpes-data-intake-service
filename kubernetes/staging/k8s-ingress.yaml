@@ -1,0 +1,28 @@
+###################################
+# INGRESS
+###################################
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: saludtechalpes-data-processor-service-ingress
+  labels:
+    name:  saludtechalpes-data-processor-service-ingress
+spec:
+  rules:
+  - http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: saludtechalpes-data-processor-service
+            port: 
+              number: 5000
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: saludtechalpes-data-processor-service
+            port: 
+              number: 5000

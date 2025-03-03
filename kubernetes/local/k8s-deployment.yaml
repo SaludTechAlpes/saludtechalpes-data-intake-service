@@ -1,0 +1,97 @@
+###################################
+# saludtechalpes-data-processor-service
+###################################
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: saludtechalpes-data-processor-service
+  labels:
+    app: saludtechalpes-data-processor-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: saludtechalpes-data-processor-service
+  template:
+    metadata:
+      labels:
+        app: saludtechalpes-data-processor-service
+    spec:
+      containers:
+        - name: saludtechalpes-data-processor-service
+          image: caprilespe/saludtechalpes-data-processor-service:0.1.1
+          env:
+            - name: "FLASK_ENV"
+              valueFrom:
+                configMapKeyRef:
+                  name: data-processor-configmap
+                  key: FLASK_ENV
+            - name: "APP_NAME"
+              valueFrom:
+                configMapKeyRef:
+                  name: data-processor-configmap
+                  key: APP_NAME
+            - name: "PULSAR_HOST"
+              valueFrom:
+                configMapKeyRef:
+                  name: data-processor-configmap
+                  key: PULSAR_HOST
+            - name: "BROKER_HOST"
+              valueFrom:
+                configMapKeyRef:
+                  name: data-processor-configmap
+                  key: BROKER_HOST
+            - name: "PHRASE_KEY"
+              valueFrom:
+                secretKeyRef:
+                  name: data-processor-secrets
+                  key: PHRASE_KEY
+            - name: "DB_USER"
+              valueFrom:
+                secretKeyRef:
+                  name: data-processor-secrets
+                  key: DB_USER
+            - name: "DB_PASSWORD"
+              valueFrom:
+                secretKeyRef:
+                  name: data-processor-secrets
+                  key: DB_PASSWORD
+            - name: "DB_NAME"
+              valueFrom:
+                secretKeyRef:
+                  name: data-processor-secrets
+                  key: DB_NAME
+            - name: "DB_PORT"
+              valueFrom:
+                secretKeyRef:
+                  name: data-processor-secrets
+                  key: DB_PORT
+            - name: "DB_HOST"
+              valueFrom:
+                secretKeyRef:
+                  name: data-processor-secrets
+                  key: DB_HOST
+          ports:
+            - containerPort: 5000
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "500m"
+            limits:
+              memory: "256Mi"
+              cpu: "1024m"
+          imagePullPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: saludtechalpes-data-processor-service-network
+spec:
+  type: LoadBalancer
+  selector:
+    app: saludtechalpes-data-processor-service
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000

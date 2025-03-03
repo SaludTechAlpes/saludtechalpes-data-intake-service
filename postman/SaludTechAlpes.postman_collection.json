@@ -1,0 +1,54 @@
+{
+	"info": {
+		"_postman_id": "72722631-d74b-4290-80d0-7ad2fda0011a",
+		"name": "SaludTechAlpes",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "1347256"
+	},
+	"item": [
+		{
+			"name": "local",
+			"item": [
+				{
+					"name": "health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{DATA_PROCESSOR_SERVICE_BASE_URL}}/health",
+							"host": [
+								"{{DATA_PROCESSOR_SERVICE_BASE_URL}}"
+							],
+							"path": [
+								"health"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "development",
+			"item": [
+				{
+					"name": "health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{DATA_PROCESSOR_SERVICE_BASE_URL}}/health",
+							"host": [
+								"{{DATA_PROCESSOR_SERVICE_BASE_URL}}"
+							],
+							"path": [
+								"health"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
