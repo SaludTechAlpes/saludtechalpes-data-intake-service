@@ -21,30 +21,14 @@ logger = logging.getLogger(__name__)
 basedir = os.path.abspath(os.path.dirname(__file__))
 config = Config()
 
-pulsar_cliente = None
-if os.getenv("FLASK_ENV") != "test":
-    pulsar_cliente = pulsar.Client(f'pulsar://{config.BROKER_HOST}:{config.BROKER_PORT}')
-
-def comenzar_consumidor():
-    """
-    Inicia el consumidor en un hilo separado, pasando el servicio de aplicación.
-    """
-
-    if os.getenv("FLASK_ENV") == "test":
-        logger.info("🔹 Saltando inicio de consumidores en modo test")
-
 
 def create_app(configuracion=None):
-    global pulsar_cliente
-
     app = Flask(__name__, instance_relative_config=True)
 
     with app.app_context():
         if app.config.get('TESTING'):
             app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
         Base.metadata.create_all(engine) 
-        if not app.config.get('TESTING'):
-            comenzar_consumidor()
 
     despachador_ingesta = Despachador()
 
@@ -76,15 +60,5 @@ def create_app(configuracion=None):
         except Exception as e:
             logger.error(f"❌ Error al publicar evento de prueba: {e}")
             return jsonify({"error": "Error al publicar evento a Pulsar"}), 500
-
-    
-
-    # Cerrar Pulsar cuando la aplicación termina
-    @app.teardown_appcontext
-    def cerrar_pulsar(exception=None):
-        global pulsar_cliente
-        if pulsar_cliente:
-            pulsar_cliente.close()
-            logger.info("Cliente Pulsar cerrado al detener Flask.")
 
     return app
