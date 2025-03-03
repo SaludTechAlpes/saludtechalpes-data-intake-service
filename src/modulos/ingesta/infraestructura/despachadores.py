@@ -10,14 +10,14 @@ config = Config()
 class Despachador:    
     def _publicar_mensaje(self, mensaje, topico, schema):
         try:
-            cliente = pulsar.Client(f'pulsar://{config.BROKER_HOST}:6650')
-            logger.info(f"Publicando mensaje en {topico}: {mensaje.data}")
+            cliente = pulsar.Client(f'pulsar://{config.BROKER_HOST}:{config.BROKER_PORT}')
+            logger.info(f"📤 Publicando mensaje en {topico}: {mensaje}")
             producer = cliente.create_producer(topico, schema=AvroSchema(schema))
             producer.send(mensaje)
-            logger.info(f"Mensaje publicado con éxito en {topico}")
+            logger.info(f"✅ Mensaje publicado con éxito en {topico}")
             cliente.close()
         except Exception as e:
-            logger.error(f"Error publicando mensaje en {topico}: {e}")
+            logger.error(f"❌ Error publicando mensaje en {topico}: {e}")
     
     def publicar_evento(self, evento, topico):
         payload = EventoDatosImportadosPayload(
@@ -30,4 +30,4 @@ class Despachador:
     
     def cerrar(self):
         self.cliente.close()
-        logger.info("Cliente Pulsar cerrado.")
+        logger.info("🔌 Cliente Pulsar cerrado.")

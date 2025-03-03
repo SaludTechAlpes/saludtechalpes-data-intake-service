@@ -36,18 +36,18 @@ class ConsumidorPulsar(Consumidor):
             while True:
                 mensaje = self.consumidor.receive()
                 data = mensaje.value().data
-                logger.info(f'Mensaje recibido en {self.topico}: {data}')
+                logger.info(f'📥 Mensaje recibido en {self.topico}: {data}')
 
                 try:
                     self.procesar_mensaje(data)
                     self.consumidor.acknowledge(mensaje)
-                    logger.info("Mensaje procesado con éxito")
+                    logger.info(f"✅ Mensaje de {self.topico} procesado con éxito")
                 except Exception as e:
-                    logger.error(f"Error procesando comando: {e}")
+                    logger.error(f"❌ Error procesando mensaje de {self.topico}: {e}")
                     self.consumidor.negative_acknowledge(mensaje)
 
         except Exception as error:
-            logger.error(f'Error suscribiéndose al tópico {self.topico}: {error}')
+            logger.error(f'❌ Error suscribiéndose al tópico {self.topico}: {error}')
             traceback.print_exc()
         finally:
             self.cerrar()
@@ -58,4 +58,4 @@ class ConsumidorPulsar(Consumidor):
         """
         if self.cliente:
             self.cliente.close()
-            logger.info("Cliente Pulsar cerrado")
+            logger.info("🔌 Cliente Pulsar cerrado.")

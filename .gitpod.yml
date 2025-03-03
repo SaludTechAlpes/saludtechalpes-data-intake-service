@@ -1,0 +1,28 @@
+tasks:
+  - name: Instalar Python
+    init: >
+      pyenv install 3.10.7 -f &&
+      pyenv local 3.10.7 &&
+      gp sync-done bundle
+  - name: Instalar dependencias
+    init: gp sync-await bundle
+    command: pip install -r requirements.txt
+  - name: Crear folder para datos y asigna permisos
+    init: > 
+      mkdir -p data/bookkeeper && 
+      mkdir -p data/zookeeper && 
+      sudo chmod -R 777 ./data
+
+ports:
+  - port: 2181
+    onOpen: ignore
+  - port: 8080
+    onOpen: ignore
+  - port: 6650
+    onOpen: ignore
+  - port: 2181
+    onOpen: ignore
+  - port: 6650
+    onOpen: ignore
+  - port: 5432
+    onOpen: ignore

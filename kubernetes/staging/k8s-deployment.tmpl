@@ -1,75 +1,75 @@
 ###################################
-# saludtechalpes-data-processor-service
+# saludtechalpes-data-intake-service
 ###################################
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: saludtechalpes-data-processor-service
+  name: saludtechalpes-data-intake-service
   labels:
-    app: saludtechalpes-data-processor-service
+    app: saludtechalpes-data-intake-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: saludtechalpes-data-processor-service
+      app: saludtechalpes-data-intake-service
   template:
     metadata:
       labels:
-        app: saludtechalpes-data-processor-service
+        app: saludtechalpes-data-intake-service
     spec:
       containers:
-        - name: saludtechalpes-data-processor-service
-          image: us-east1-docker.pkg.dev/saludtechalpes/saludtechalpes/saludtechalpes-data-processor-service:{{IMAGE_TAG}}
+        - name: saludtechalpes-data-intake-service
+          image: us-east1-docker.pkg.dev/saludtechalpes/saludtechalpes/saludtechalpes-data-intake-service:{{IMAGE_TAG}}
           env:
             - name: "FLASK_ENV"
               valueFrom:
                 configMapKeyRef:
-                  name: data-processor-configmap
+                  name: data-intake-configmap
                   key: FLASK_ENV
             - name: "APP_NAME"
               valueFrom:
                 configMapKeyRef:
-                  name: data-processor-configmap
+                  name: data-intake-configmap
                   key: APP_NAME
             - name: "PULSAR_HOST"
               valueFrom:
                 configMapKeyRef:
-                  name: data-processor-configmap
+                  name: data-intake-configmap
                   key: PULSAR_HOST
             - name: "BROKER_HOST"
               valueFrom:
                 configMapKeyRef:
-                  name: data-processor-configmap
+                  name: data-intake-configmap
                   key: BROKER_HOST
             - name: "PHRASE_KEY"
               valueFrom:
                 secretKeyRef:
-                  name: data-processor-secrets
+                  name: data-intake-secrets
                   key: PHRASE_KEY
             - name: "DB_USER"
               valueFrom:
                 secretKeyRef:
-                  name: data-processor-secrets
+                  name: data-intake-secrets
                   key: DB_USER
             - name: "DB_PASSWORD"
               valueFrom:
                 secretKeyRef:
-                  name: data-processor-secrets
+                  name: data-intake-secrets
                   key: DB_PASSWORD
             - name: "DB_NAME"
               valueFrom:
                 secretKeyRef:
-                  name: data-processor-secrets
+                  name: data-intake-secrets
                   key: DB_NAME
             - name: "DB_PORT"
               valueFrom:
                 secretKeyRef:
-                  name: data-processor-secrets
+                  name: data-intake-secrets
                   key: DB_PORT
             - name: "DB_HOST"
               valueFrom:
                 secretKeyRef:
-                  name: data-processor-secrets
+                  name: data-intake-secrets
                   key: DB_HOST
 
           ports:
@@ -87,11 +87,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: saludtechalpes-data-processor-service-network
+  name: saludtechalpes-data-intake-service-network
 spec:
   type: LoadBalancer
   selector:
-    app: saludtechalpes-data-processor-service
+    app: saludtechalpes-data-intake-service
   ports:
     - protocol: TCP
       port: 5000

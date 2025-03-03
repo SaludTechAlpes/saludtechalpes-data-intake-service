@@ -99,9 +99,9 @@ services:
       bash -c "bin/apply-config-from-env.py conf/broker.conf && exec bin/pulsar broker"
 
   # Servicio de Procesamiento de Datos
-  data-processor-service:
-    container_name: data-processor-service
-    hostname: data-processor-service
+  data-intake-service:
+    container_name: data-intake-service
+    hostname: data-intake-service
     develop:
       watch:
         - action: rebuild
@@ -121,7 +121,7 @@ services:
       db:
         condition: service_started
     env_file:
-      - .env.local
+      - .env
     ports:
       - "5000:5000"
 

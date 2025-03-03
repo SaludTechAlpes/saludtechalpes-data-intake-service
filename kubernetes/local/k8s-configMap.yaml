@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: data-processor-configmap
+  name: data-intake-configmap
 data:
   FLASK_ENV: "local"
-  APP_NAME: "saludtechalpes-data-processor-service"
+  APP_NAME: "saludtechalpes-data-intake-service"
   PULSAR_HOST: "pulsar"
   BROKER_HOST: "broker"
