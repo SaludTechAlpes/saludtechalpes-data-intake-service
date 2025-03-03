@@ -27,7 +27,3 @@ class Despachador:
         evento_ingesta = EventoDatosImportados(data=payload)
         self._publicar_mensaje(evento_ingesta, topico, EventoDatosImportados)
 
-    
-    def cerrar(self):
-        self.cliente.close()
-        logger.info("🔌 Cliente Pulsar cerrado.")
