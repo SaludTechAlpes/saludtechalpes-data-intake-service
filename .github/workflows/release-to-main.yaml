@@ -100,8 +100,6 @@ jobs:
           ./kubernetes/staging/k8s-secrets.tmpl > kubernetes/staging/k8s-secrets.yaml
           kubectl apply -f kubernetes/staging/k8s-configMap.yaml
           kubectl apply -f kubernetes/staging/k8s-secrets.yaml
-          kubectl apply -f kubernetes/staging/k8s-pulsar.yaml
-          kubectl apply -f kubernetes/staging/k8s-pulsar-init.yaml
           kubectl apply -f kubernetes/staging/k8s-deployment.yaml
           kubectl apply -f kubernetes/staging/k8s-hpa.yaml
           kubectl apply -f kubernetes/staging/k8s-ingress.yaml

@@ -41,6 +41,11 @@ spec:
                 configMapKeyRef:
                   name: data-intake-configmap
                   key: BROKER_HOST
+            - name: "BROKER_PORT"
+              valueFrom:
+                configMapKeyRef:
+                  name: data-intake-configmap
+                  key: BROKER_PORT
             - name: "PHRASE_KEY"
               valueFrom:
                 secretKeyRef:
@@ -94,5 +99,5 @@ spec:
     app: saludtechalpes-data-intake-service
   ports:
     - protocol: TCP
-      port: 5000
+      port: 5004
       targetPort: 5000
