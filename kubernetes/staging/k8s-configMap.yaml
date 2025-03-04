@@ -5,6 +5,6 @@ metadata:
 data:
   FLASK_ENV: "staging"
   APP_NAME: "saludtechalpes-data-intake-service"
-  PULSAR_HOST: "pulsar"
+  PULSAR_HOST: "pulsar-broker"
   BROKER_HOST: "broker"
   BROKER_PORT: "6650"
