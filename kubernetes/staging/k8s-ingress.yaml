@@ -7,7 +7,7 @@ kind: Ingress
 metadata:
   name: saludtechalpes-data-intake-service-ingress
   labels:
-    name:  saludtechalpes-data-intake-service-ingress
+    name: saludtechalpes-data-intake-service-ingress
 spec:
   rules:
   - http:
@@ -18,11 +18,11 @@ spec:
           service:
             name: saludtechalpes-data-intake-service
             port: 
-              number: 5000
+              number: 5004
       - pathType: Prefix
         path: /
         backend:
           service:
             name: saludtechalpes-data-intake-service
             port: 
-              number: 5000
+              number: 5004
