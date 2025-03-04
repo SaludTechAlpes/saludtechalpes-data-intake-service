@@ -44,11 +44,8 @@ Este módulo contiene código reutilizable para todas las aplicaciones dentro de
 
 El sistema sigue un flujo basado en **eventos y comandos**:
 
-1. **Ingesta de datos**: El módulo de ingesta emite el evento **`DatosIngestadosEvento`**.
-2. **Anonimización de datos**: El módulo de anonimización consume este evento y envía el comando **`AnonimizarDatosComando`**.
-3. **Procesamiento de anonimización**: Se ejecuta el proceso de anonimización y, si es exitoso, se emite el evento **`DatosAnonimizadosEvento`**.
-4. **Mapeo de datos**: El módulo de mapeo escucha **`DatosAnonimizadosEvento`** y ejecuta el comando **`MapearDatosComando`**, que agrupa las imágenes en clústeres según sus metadatos.
-5. **Procesamiento de mapeo**: Se ejecuta el proceso de mapeo y, si es exitoso, se emite el evento **`DatosAgrupados`**
+1. **Importe de datos**: Mediante un endpoint se simula el evento **`DatosImportadosEvento`**.
+2. **Ingesta de datos**: El módulo de ingesta emite el evento **`DatosIngestadosEvento`**.
 
 ## 🚀 **Cómo Ejecutar la Aplicación**
 
