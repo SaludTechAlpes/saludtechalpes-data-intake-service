@@ -131,4 +131,3 @@ curl -X GET http://localhost:5000/simular-ingesta-evento
 Este servicio es solo una parte del sistema **SaludTech Alpes** y debe comunicarse con otros servicios para funcionar correctamente.
 
 ---
-
