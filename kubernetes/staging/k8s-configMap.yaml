@@ -7,3 +7,4 @@ data:
   APP_NAME: "saludtechalpes-data-intake-service"
   PULSAR_HOST: "pulsar"
   BROKER_HOST: "broker"
+  BROKER_PORT: "6650"
