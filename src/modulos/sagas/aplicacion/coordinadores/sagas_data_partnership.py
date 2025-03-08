@@ -1,13 +1,16 @@
 from src.seedwork.aplicacion.sagas import CoordinadorCoreografia
 from src.modulos.sagas.infraestructura.pulsar_manager import PulsarManager
 from src.seedwork.aplicacion.sagas import Transaccion
+from src.seedwork.dominio.eventos import EventoDominio
+from src.modulos.sagas.dominio.eventos.data_intake import DatosImportadosEvento, DatosImportadosFallidoEvento
 from src.modulos.sagas.dominio.eventos.data_processor import DatosAnonimizadosEvento, DatosAnonimizadosFallidoEvento, DatosAgrupadosEvento, DatosAgrupadosFallidoEvento
-from src.modulos.sagas.dominio.eventos.data_transformation import DataFramesGeneradosEvento, GeneracionDataFramesRevertidoEvento
+from src.modulos.sagas.dominio.eventos.data_transformation import DataFramesGeneradosEvento, DataFramesGeneradosFallidoEvento
 from src.modulos.sagas.dominio.eventos.medical_history import HistorialMedicoAlmacenadoEvento, HistorialMedicoFallidoEvento
 from src.modulos.sagas.dominio.comandos.data_intake import DatosImportadosComando, RevertirDatosImportadosComando
 from src.modulos.sagas.dominio.comandos.data_processor import AnonimizarDatosComando, AgruparDatosComando, RevertirAnonimizacionComando, RevertirAgrupamientoComando
 from src.modulos.sagas.dominio.comandos.data_transformation import EjecutarModelosComando, RevertirEjecucionModelosComando
-from src.modulos.sagas.dominio.comandos.medical_history import EjecutarModelosComando, RevertirHistorialMedicoComando
+from src.modulos.sagas.dominio.comandos.medical_history import HistorialMedicoComando, RevertirHistorialMedicoComando
+from src.modulos.sagas.infraestructura.despachadores import DespachadorComandosSagas
 import pulsar
 from pulsar.schema import AvroSchema
 import logging
@@ -16,11 +19,11 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 MAPA_TRANSACCIONES = [
-    Transaccion(index=1, comando=DatosImportadosComando, evento=DatosImportadosEvento, error=DatosImportadosFallidoEvento, compensacion=RevertirDatosImportadosComando, topico="datos-importados"),
-    Transaccion(index=2, comando=AnonimizarDatosComando, evento=DatosAnonimizadosEvento, error=DatosAnonimizadosFallidoEvento, compensacion=RevertirAnonimizacionComando, topico="anonimizar-datos"),
-    Transaccion(index=3, comando=AgruparDatosComando, evento=DatosAgrupadosEvento, error=DatosAgrupadosFallidoEvento, compensacion=RevertirAgrupamientoComando, topico="mapear-datos"),
-    Transaccion(index=4, comando=EjecutarModelosComando, evento=DataFramesGeneradosEvento, error=DataFramesGeneradosFallidoEvento, compensacion=RevertirEjecucionModelosComando, topico="ejecutar-modelos"),
-    Transaccion(index=5, comando=HistorialMedicoComando, evento=HistorialMedicoAlmacenadoEvento, error=HistorialMedicoFallidoEvento, compensacion=RevertirHistorialMedicoComando, topico="crear-historial-medico"),
+    Transaccion(comando=DatosImportadosComando, evento=DatosImportadosEvento, error=DatosImportadosFallidoEvento, compensacion=RevertirDatosImportadosComando, topico="datos-importados"),
+    Transaccion(comando=AnonimizarDatosComando, evento=DatosAnonimizadosEvento, error=DatosAnonimizadosFallidoEvento, compensacion=RevertirAnonimizacionComando, topico="anonimizar-datos"),
+    Transaccion(comando=AgruparDatosComando, evento=DatosAgrupadosEvento, error=DatosAgrupadosFallidoEvento, compensacion=RevertirAgrupamientoComando, topico="mapear-datos"),
+    Transaccion(comando=EjecutarModelosComando, evento=DataFramesGeneradosEvento, error=DataFramesGeneradosFallidoEvento, compensacion=RevertirEjecucionModelosComando, topico="ejecutar-modelos"),
+    Transaccion(comando=HistorialMedicoComando, evento=HistorialMedicoAlmacenadoEvento, error=HistorialMedicoFallidoEvento, compensacion=RevertirHistorialMedicoComando, topico="crear-historial-medico"),
 ]
 
 TOPICOS_EVENTOS = [
@@ -31,76 +34,72 @@ TOPICOS_EVENTOS = [
     "historial-almacenado"
 ]
 
+SCHEMAS_EVENTOS = {
+    "datos-importados": AvroSchema(DatosImportadosEvento),
+    "datos-anonimizados": AvroSchema(DatosAnonimizadosEvento),
+    "datos-agrupados": AvroSchema(DatosAgrupadosEvento),
+    "dataframes-generados": AvroSchema(DataFramesGeneradosEvento),
+    "historial-almacenado": AvroSchema(HistorialMedicoAlmacenadoEvento),
+}
+
 class CoordinadorCoreografiaEventos(CoordinadorCoreografia):
     """Coordinador Coreográfico basado en eventos de compensación"""
+    
     def __init__(self):
         super().__init__()
         self.inicializar_pasos()
         self.cliente_pulsar = PulsarManager.obtener_cliente()
         self.consumidores = []
         self.producers = {}
+        self.despachador = DespachadorComandosSagas()
 
-        # Consumidores para eventos de fallo
+        # Consumidores para eventos de fallo con esquema correcto
         for topico in TOPICOS_EVENTOS:
             consumer = self.cliente_pulsar.subscribe(
                 topico,  
-                schema=AvroSchema(EventoDominio),
+                schema=AvroSchema(self.obtener_schema_para_topico(topico)),
                 subscription_name="saludtech-sub-eventos"
             )
             self.consumidores.append(consumer)
 
-        # Productores para comandos de compensación
-        for paso in self.pasos:
-            self.producers[paso.compensacion.__name__] = self.cliente_pulsar.create_producer(
-                paso.comando.topico, schema=AvroSchema(type(paso.compensacion))
-            )
+    def obtener_schema_para_topico(self, topico):
+        """Asocia un esquema Avro a cada tópico"""
+        SCHEMAS_EVENTOS = {
+            "datos-importados": EventoDatosImportados,
+            "datos-anonimizados": EventoDatosAnonimizados,
+            "datos-agrupados": EventoDatosAgrupados,
+            "dataframes-generados": EventoDataFramesGenerados,
+            "historial-almacenado": EventoHistorialMedicoAlmacenado,
+        }
+        return SCHEMAS_EVENTOS.get(topico)
 
     def inicializar_pasos(self):
         """Carga los pasos desde `MAPA_TRANSACCIONES`."""
         self.pasos = MAPA_TRANSACCIONES
 
-    def procesar_evento(self, evento):
-        """Si el evento es un fallo, activa todas las compensaciones necesarias."""
-        logger.warning(f"⚠️ Evento fallido detectado: {type(evento).__name__}")
-
-        # Encuentra en qué punto de la saga ocurrió el fallo
-        paso_fallido, index = self.obtener_paso_dado_un_evento(evento)
-
-        logger.info(f"⏳ Ejecutando todas las compensaciones desde el paso {index} hacia atrás...")
-
-        # Recorrer los pasos en orden inverso y ejecutar sus compensaciones
-        for i in range(index, -1, -1):  # Desde el index fallido hasta el inicio
-            comando_compensacion = self.pasos[i].compensacion
-            self.publicar_comando(evento, comando_compensacion)
-
     def publicar_comando(self, evento, comando):
-        """Publica un comando de compensación en el mismo tópico donde se ejecutó el comando original."""
+        """Publica un comando de compensación usando el nuevo despachador."""
         logger.warning(f"⚠️ Activando compensación {comando.__name__} tras fallo en {type(evento).__name__}")
 
-        # Extraer los atributos del evento fallido
-        datos_comando = {"id_saga": evento.id_saga}
-        for atributo in atributos_requeridos:
-            if hasattr(evento, atributo):
-                datos_comando[atributo] = getattr(evento, atributo)
-            else:
-                logger.warning(f"⚠️ Evento {type(evento).__name__} no tiene el atributo {atributo}")
+        # Buscar el paso correspondiente en MAPA_TRANSACCIONES
+        for paso in self.pasos:
+            if paso.compensacion == comando:
+                topico_destino = paso.topico
+                break
+        else:
+            logger.error(f"❌ No se encontró un tópico para {comando.__name__}")
+            return
 
-        # Crear el evento de compensación con los datos correctos
-        evento_compensacion = comando(**datos_comando)
-        evento_compensacion.es_compensacion = True
+        # Crear comando con los datos necesarios
+        comando_compensacion = comando(id_saga=evento.id_saga)
 
-        self.producers[comando.__name__].send(evento_compensacion)
-        logger.info(f"📤 Comando de compensación {comando.__name__} publicado en {evento.topico}")
+        # Publicar el comando en el tópico correcto
+        self.despachador.publicar_comando(comando_compensacion, topico_destino)
+        logger.info(f"📤 Comando de compensación {comando.__name__} publicado en {topico_destino}")
 
-    def escuchar_eventos(self):
-        """Escucha eventos de fallo y activa todas las compensaciones necesarias."""
-        while True:
-            for consumer in self.consumidores:
-                mensaje = consumer.receive()
-                evento = mensaje.value()
+    def persistir_en_saga_log(self, mensaje):
+        """Guarda el estado de la Saga en una base de datos o log."""
+        logger.info(f"📌 Persistiendo en Saga Log: {mensaje}")
 
-                if hasattr(evento, "es_compensacion") and evento.es_compensacion:
-                    continue  # No procesamos eventos de compensación, solo fallos
-
-                self.procesar_evento(evento)
-                consumer.acknowledge(mensaje)
+    def construir_comando(self, evento: EventoDominio, tipo_comando: type):
+        return None

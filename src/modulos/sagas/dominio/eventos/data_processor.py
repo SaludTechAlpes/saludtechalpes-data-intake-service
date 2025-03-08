@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 from typing import List, Optional
 from src.seedwork.dominio.eventos import EventoDominio
-import src.modulos.anonimizacion.dominio.objetos_valor as ov
+import src.modulos.sagas.dominio.objetos_valor as ov
 
 
 @dataclass

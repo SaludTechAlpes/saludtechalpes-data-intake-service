@@ -4,8 +4,6 @@ import uuid
 from dataclasses import dataclass, field
 from typing import List, Optional
 
-import src.modulos.historialMedico.dominio.objetos_valor as ov
-
 
 @dataclass
 class HistorialMedicoComando:

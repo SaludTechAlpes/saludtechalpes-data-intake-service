@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from src.seedwork.aplicacion.comandos import Comando
 from src.seedwork.dominio.eventos import EventoDominio
-from src.seedwork.aplicacion.sagas import CoordinadorSaga, Transaccion, Inicio, Fin
 from dataclasses import dataclass
 from .comandos import ejecutar_commando
 import uuid
@@ -57,7 +56,6 @@ class Transaccion(Paso):
     evento: EventoDominio
     error: EventoDominio
     compensacion: Comando
-    exitosa: bool
     topico: str
 
 

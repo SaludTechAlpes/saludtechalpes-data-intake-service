@@ -12,7 +12,7 @@ from src.modulos.ingesta.infraestructura.despachadores import Despachador
 from src.modulos.ingesta.dominio.eventos import DatosImportadosEvento
 
 # Coordinador de Coreografía
-from src.modulos.sagas.aplicacion.coordinadores.coordinador_coreografia_eventos import CoordinadorCoreografiaEventos
+from src.modulos.sagas.aplicacion.coordinadores.sagas_data_partnership import CoordinadorCoreografiaEventos
 
 from src.config.db import Base, engine
 
