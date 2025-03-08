@@ -14,6 +14,7 @@ from src.modulos.sagas.infraestructura.despachadores import DespachadorComandosS
 import pulsar
 from pulsar.schema import AvroSchema
 import logging
+import inspect
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -33,14 +34,6 @@ TOPICOS_EVENTOS = [
     "dataframes-generados",
     "historial-almacenado"
 ]
-
-SCHEMAS_EVENTOS = {
-    "datos-importados": AvroSchema(DatosImportadosEvento),
-    "datos-anonimizados": AvroSchema(DatosAnonimizadosEvento),
-    "datos-agrupados": AvroSchema(DatosAgrupadosEvento),
-    "dataframes-generados": AvroSchema(DataFramesGeneradosEvento),
-    "historial-almacenado": AvroSchema(HistorialMedicoAlmacenadoEvento),
-}
 
 class CoordinadorCoreografiaEventos(CoordinadorCoreografia):
     """Coordinador Coreográfico basado en eventos de compensación"""
@@ -77,8 +70,9 @@ class CoordinadorCoreografiaEventos(CoordinadorCoreografia):
         """Carga los pasos desde `MAPA_TRANSACCIONES`."""
         self.pasos = MAPA_TRANSACCIONES
 
+
     def publicar_comando(self, evento, comando):
-        """Publica un comando de compensación usando el nuevo despachador."""
+        """Publica un comando de compensación en el mismo tópico donde se ejecutó el comando original."""
         logger.warning(f"⚠️ Activando compensación {comando.__name__} tras fallo en {type(evento).__name__}")
 
         # Buscar el paso correspondiente en MAPA_TRANSACCIONES
@@ -90,12 +84,25 @@ class CoordinadorCoreografiaEventos(CoordinadorCoreografia):
             logger.error(f"❌ No se encontró un tópico para {comando.__name__}")
             return
 
-        # Crear comando con los datos necesarios
-        comando_compensacion = comando(id_saga=evento.id_saga)
+        # Obtener los atributos requeridos del comando mediante introspección
+        parametros_comando = inspect.signature(comando).parameters
+        datos_comando = {"id_saga": evento.id_saga}
+
+        # Extraer los valores del evento que coincidan con los parámetros del comando
+        for atributo in parametros_comando:
+            if hasattr(evento, atributo):
+                datos_comando[atributo] = getattr(evento, atributo)
+            elif atributo != "id_saga":  # Excluimos id_saga porque ya se asignó antes
+                logger.warning(f"⚠️ El evento {type(evento).__name__} no tiene el atributo requerido '{atributo}' para el comando {comando.__name__}")
+
+        # Crear el comando de compensación con los datos correctos
+        comando_compensacion = comando(**datos_comando)
 
         # Publicar el comando en el tópico correcto
         self.despachador.publicar_comando(comando_compensacion, topico_destino)
-        logger.info(f"📤 Comando de compensación {comando.__name__} publicado en {topico_destino}")
+        logger.info(f"📤 Comando de compensación {comando.__name__} publicado en {topico_destino} con datos {datos_comando}")
+
+
 
     def persistir_en_saga_log(self, mensaje):
         """Guarda el estado de la Saga en una base de datos o log."""

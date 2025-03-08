@@ -4,13 +4,15 @@ from typing import Optional
 from src.seedwork.dominio.eventos import EventoDominio
 
 @dataclass
-class DatosImportadosEvento(EventoDominio):
+class ImportarDatosComando(EventoDominio):
     id_imagen_importada: Optional[str] = None
     ruta_imagen: Optional[str] = None
     ruta_metadatos:Optional[str] = None
 
-class DatosImportadosFallidoEvento(EventoDominio):
+@dataclass
+class RevertirImportacionDatosComando(EventoDominio):
     id_imagen_importada: Optional[str] = None
+    es_compensacion: Optional[bool] = True
 
 
 

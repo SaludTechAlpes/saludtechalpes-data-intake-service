@@ -10,7 +10,7 @@ class AnonimizarDatosComando():
 
 @dataclass
 class AgruparDatosComando:
-    id_imagen = String()
+    id_imagen: Optional[str] = None
     etiquetas_patologicas: List[ov.EtiquetaPatologica] = field(default_factory=list)
     ruta_imagen_anonimizada: Optional[str] = None
 
