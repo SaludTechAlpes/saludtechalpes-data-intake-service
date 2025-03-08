@@ -11,6 +11,9 @@ from src.config.config import Config
 from src.modulos.ingesta.infraestructura.despachadores import Despachador
 from src.modulos.ingesta.dominio.eventos import DatosImportadosEvento
 
+# Coordinador de Coreografía
+from src.modulos.sagas.aplicacion.coordinadores.coordinador_coreografia_eventos import CoordinadorCoreografiaEventos
+
 from src.config.db import Base, engine
 
 # Configuración de logs
@@ -21,6 +24,9 @@ logger = logging.getLogger(__name__)
 basedir = os.path.abspath(os.path.dirname(__file__))
 config = Config()
 
+coordinador = CoordinadorCoreografiaEventos()
+threading.Thread(target=coordinador.escuchar_eventos, daemon=True).start()
+logger.info("✅ Coordinador Coreográfico inicializado y escuchando eventos.")
 
 def create_app(configuracion=None):
     app = Flask(__name__, instance_relative_config=True)
