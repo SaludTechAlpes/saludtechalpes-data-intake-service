@@ -24,15 +24,15 @@ MAPA_TRANSACCIONES = [
     Transaccion(comando=AnonimizarDatosComando, evento=DatosAnonimizadosEvento, error=DatosAnonimizadosFallidoEvento, compensacion=RevertirAnonimizacionComando, topico="anonimizar-datos"),
     Transaccion(comando=AgruparDatosComando, evento=DatosAgrupadosEvento, error=DatosAgrupadosFallidoEvento, compensacion=RevertirAgrupamientoComando, topico="mapear-datos"),
     Transaccion(comando=EjecutarModelosComando, evento=DataFramesGeneradosEvento, error=DataFramesGeneradosFallidoEvento, compensacion=RevertirEjecucionModelosComando, topico="ejecutar-modelos"),
-    Transaccion(comando=HistorialMedicoComando, evento=HistorialMedicoAlmacenadoEvento, error=HistorialMedicoFallidoEvento, compensacion=RevertirHistorialMedicoComando, topico="crear-historial-medico"),
+    # Transaccion(comando=HistorialMedicoComando, evento=HistorialMedicoAlmacenadoEvento, error=HistorialMedicoFallidoEvento, compensacion=RevertirHistorialMedicoComando, topico="crear-historial-medico"),
 ]
 
 TOPICOS_EVENTOS = [
-    "datos-importados",
-    "datos-anonimizados",
-    "datos-agrupados",
-    "dataframes-generados",
-    "historial-almacenado"
+    "datos-importados-fallido",
+    "datos-anonimizados-fallido",
+    "datos-agrupados-fallido",
+    "generacion-dataframes-fallido",
+    # "historial-almacenado"
 ]
 
 class CoordinadorCoreografiaEventos(CoordinadorCoreografia):

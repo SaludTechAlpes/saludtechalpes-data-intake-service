@@ -2,7 +2,7 @@ import pulsar
 from pulsar.schema import AvroSchema
 import logging
 from src.modulos.ingesta.infraestructura.schema.v1.comandos import ComandoRevertirDatosImportadosPayload, ComandoRevertirDatosImportados
-from src.modulos.ingesta.infraestructura.schema.v1.eventos import EventoDatosImportadosPayload, EventoDatosImportados
+from src.modulos.ingesta.infraestructura.schema.v1.eventos import EventoDatosImportadosPayload, EventoDatosImportados, EventoDatosImportadosFallidoPayload, EventoDatosImportadosFallido
 from src.config.config import Config
 logger = logging.getLogger(__name__)
 
@@ -29,6 +29,13 @@ class Despachador:
         )
         evento_ingesta = EventoDatosImportados(data=payload)
         self._publicar_mensaje(evento_ingesta, topico, EventoDatosImportados)
+
+    def publicar_evento_fallido(self, evento, topico):
+        payload = EventoDatosImportadosFallidoPayload(
+            id_imagen_importada=str(evento.id_imagen_importada),
+        )
+        evento_gordo=EventoDatosImportadosFallido(data=payload)
+        self._publicar_mensaje(evento_gordo, topico, EventoDatosImportadosFallido)
 
     def publicar_comando(self, evento, topico):
         payload = ComandoRevertirDatosImportadosPayload(

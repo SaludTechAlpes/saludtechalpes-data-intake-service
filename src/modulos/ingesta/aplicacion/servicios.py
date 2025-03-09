@@ -1,7 +1,7 @@
 from src.modulos.ingesta.dominio.entidades import ImagenMedica, MetadatosImagenMedica
 from src.modulos.ingesta.dominio.puertos.repositorios import RepositorioIngesta
 from src.modulos.ingesta.infraestructura.despachadores import Despachador
-from src.modulos.ingesta.dominio.eventos import DatosImportadosEvento
+from src.modulos.ingesta.dominio.eventos import DatosImportadosEvento, DatosImportadosFallidoEvento
 from src.modulos.ingesta.dominio.puertos.procesar_comando_modelos import PuertoProcesarComandoImportarDatos
 from datetime import datetime, timezone
 import logging
@@ -24,7 +24,7 @@ class ServicioAplicacionIngestaDatos(PuertoProcesarComandoImportarDatos):
         try:
             imagen_medica = self.repositorio_ingesta.obtener_por_id(id_imagen_importada)
 
-            if imagen_medica:
+            if imagen_medica or evento_a_fallar == 'DatosImportados':
                 self.repositorio_ingesta.eliminar(id_imagen_importada)
 
                 logger.warning(f"🔄 Reversión ejecutada: Imagen médica {id_imagen_importada} eliminada.")
@@ -32,7 +32,12 @@ class ServicioAplicacionIngestaDatos(PuertoProcesarComandoImportarDatos):
                 logger.warning(f"⚠️ No se encontró la imagen médica {id_imagen_importada}, no hay nada que eliminar.")
 
         except Exception as e:
-            logger.error(f"❌ Error al revertir la importación de datos para {id_imagen_importada}: {e}")
+            evento = DatosImportadosFallidoEvento(
+                id_imagen_importada=id_imagen_importada,
+            )
+
+            self.despachador.publicar_evento_fallido(evento, 'datos-importados-fallido')
+            logger.error(f"❌ Error al importar la imagen y evento publicado al topico datos-importados-fallido: {e}")
             raise
         
         
