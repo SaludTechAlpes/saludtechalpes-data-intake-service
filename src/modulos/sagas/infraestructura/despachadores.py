@@ -1,14 +1,12 @@
 import pulsar
 from pulsar.schema import AvroSchema
 import logging
-from src.modulos.sagas.infraestructura.schema.v1.comandos.data_intake import ComandoRevertirDatosImportadosPayload, ComandoRevertirDatosImportados 
-from src.modulos.sagas.infraestructura.schema.v1.comandos.data_processor import ComandoRevertirAnonimizacionPayload, ComandoRevertirAnonimizacion, ComandoRevertirAgrupamientoPayload, ComandoRevertirAgrupamiento
+from src.modulos.sagas.infraestructura.schema.v1.comandos.data_intake import ComandoRevertirDatosImportados, ComandoRevertirDatosImportadosPayload
+from src.modulos.sagas.infraestructura.schema.v1.comandos.data_processor import ComandoRevetirAnonimizacionDatosPayload, ComandoRevertirAnonimizacionDatos, ComandoRevetirMapeoPayload, ComandoRevertirMapeoDatos
 from src.modulos.sagas.infraestructura.schema.v1.comandos.data_transformation import ComandoRevertirEjecucionModelosPayload, ComandoRevertirEjecucionModelos 
-from src.modulos.sagas.infraestructura.schema.v1.comandos.medical_history import ComandoRevertirHistorialMedicoPayload, ComandoRevertirHistorialMedico 
-from src.modulos.sagas.dominio.comandos.data_intake import DatosImportadosComando, RevertirDatosImportadosComando
-from src.modulos.sagas.dominio.comandos.data_processor import RevertirAnonimizacionComando, RevertirAgrupamientoComando
+from src.modulos.sagas.dominio.comandos.data_intake import RevertirImportacionDatosComando
+from src.modulos.sagas.dominio.comandos.data_processor import RevertirAnonimizacionDatosComando, RevertirMapeoComando
 from src.modulos.sagas.dominio.comandos.data_transformation import RevertirEjecucionModelosComando
-from src.modulos.sagas.dominio.comandos.medical_history import RevertirHistorialMedicoComando
 from src.config.config import Config
 
 logging.basicConfig(level=logging.INFO)
@@ -37,30 +35,36 @@ class DespachadorComandosSagas:
         Publica comandos de compensación en Pulsar, determinando el esquema correcto.
         """
 
-        if isinstance(comando, RevertirDatosImportadosComando):
-            payload = ComandoRevertirDatosImportadosPayload(id_saga=str(comando.id_saga))
+        if isinstance(comando, RevertirImportacionDatosComando):
+            payload = ComandoRevertirDatosImportadosPayload(
+                id_imagen_importada=str(comando.id_imagen_importada), 
+                es_compensacion=True
+            )
             comando_pulsar = ComandoRevertirDatosImportados(data=payload)
             schema = ComandoRevertirDatosImportados
 
-        elif isinstance(comando, RevertirAnonimizacionComando):
-            payload = ComandoRevertirAnonimizacionPayload(id_saga=str(comando.id_saga))
-            comando_pulsar = ComandoRevertirAnonimizacion(data=payload)
-            schema = ComandoRevertirAnonimizacion
+        elif isinstance(comando, RevertirAnonimizacionDatosComando):
+            payload = ComandoRevetirAnonimizacionDatosPayload(
+                id_imagen_anonimizada=str(comando.id_imagen_anonimizada),
+                es_compensacion=True
+            )
+            comando_pulsar = ComandoRevertirAnonimizacionDatos(data=payload)
+            schema = ComandoRevertirAnonimizacionDatos
 
-        elif isinstance(comando, RevertirAgrupamientoComando):
-            payload = ComandoRevertirAgrupamientoPayload(id_saga=str(comando.id_saga))
-            comando_pulsar = ComandoRevertirAgrupamiento(data=payload)
-            schema = ComandoRevertirAgrupamiento
+        elif isinstance(comando, RevertirMapeoComando):
+            payload = ComandoRevetirMapeoPayload(
+                id_imagen_mapeada=str(comando.id_imagen_mapeada),
+                es_compensacion=True
+            )
+            comando_pulsar = ComandoRevertirMapeoDatos(data=payload)
+            schema = ComandoRevertirMapeoDatos
 
         elif isinstance(comando, RevertirEjecucionModelosComando):
-            payload = ComandoRevertirEjecucionModelosPayload(id_saga=str(comando.id_saga))
+            payload = ComandoRevertirEjecucionModelosPayload(
+                id_dataframe=str(comando.id_dataframe),
+            )
             comando_pulsar = ComandoRevertirEjecucionModelos(data=payload)
             schema = ComandoRevertirEjecucionModelos
-
-        elif isinstance(comando, RevertirHistorialMedicoComando):
-            payload = ComandoRevertirHistorialMedicoPayload(id_saga=str(comando.id_saga))
-            comando_pulsar = ComandoRevertirHistorialMedico(data=payload)
-            schema = ComandoRevertirHistorialMedico
 
         else:
             logger.error(f"❌ Tipo de comando desconocido: {type(comando).__name__}")

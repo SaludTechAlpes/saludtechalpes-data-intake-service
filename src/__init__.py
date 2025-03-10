@@ -27,9 +27,9 @@ logger = logging.getLogger(__name__)
 basedir = os.path.abspath(os.path.dirname(__file__))
 config = Config()
 
-# coordinador = CoordinadorCoreografiaEventos()
-# threading.Thread(target=coordinador.escuchar_eventos, daemon=True).start()
-# logger.info("✅ Coordinador Coreográfico inicializado y escuchando eventos.")
+coordinador = CoordinadorCoreografiaEventos()
+coordinador.iniciar_consumidores()
+logger.info("✅ Coordinador Coreográfico inicializado y escuchando eventos.")
 
 def comenzar_consumidor():
     """

@@ -54,7 +54,8 @@ class RepositorioIngestaPostgres(RepositorioIngesta):
         """
         Elimina una Imagen médica de la base de datos por su ID.
         """
-        self.session.execute(
-            delete(ImagenMedicaDTO).where(ImagenMedicaDTO.id == str(id))
-        )
-        self.session.commit()
+        imagen = self.session.query(ImagenMedicaDTO).filter_by(id=str(id)).one_or_none()
+    
+        if imagen:
+            self.session.delete(imagen)
+            self.session.commit()

@@ -41,7 +41,7 @@ class ConsumidorPulsar(Consumidor):
                 try:
                     self.procesar_mensaje(data)
                     self.consumidor.acknowledge(mensaje)
-                    logger.info(f"✅ Mensaje de {self.topico} procesado con éxito")
+                    logger.info(f"🎉 Mensaje de {self.topico} procesado con éxito")
                 except Exception as e:
                     logger.error(f"❌ Error procesando mensaje de {self.topico}: {e}")
                     self.consumidor.negative_acknowledge(mensaje)

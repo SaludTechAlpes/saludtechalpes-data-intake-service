@@ -10,5 +10,10 @@
       "username": "admin",
       "name": "saludtech"
     }
-  ]
+  ],
+  "workbench.colorCustomizations": {
+    "activityBar.background": "#0C3513",
+    "titleBar.activeBackground": "#114A1A",
+    "titleBar.activeForeground": "#F3FCF4"
+  }
 }

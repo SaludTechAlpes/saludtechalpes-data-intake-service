@@ -1,16 +1,10 @@
 from pulsar.schema import *
-from src.seedwork.infraestructura.schema.v1.comandos import ComandoIntegracion
-
-class ComandoImportarDatosPayload(Record):
-    ruta_imagen = String()
-    ruta_metadatos = String()
-
-class ComandoImportarDatos(ComandoIntegracion):
-    data = ComandoImportarDatosPayload()
+from dataclasses import dataclass, field
+from src.seedwork.infraestructura.schema.v1.comandos import (ComandoIntegracion)
 
 class ComandoRevertirDatosImportadosPayload(Record):
-    ruta_imagen = String()
-    ruta_metadatos = String()
+    id_imagen_importada = String()
+    es_compensacion = Boolean()
 
 class ComandoRevertirDatosImportados(ComandoIntegracion):
     data = ComandoRevertirDatosImportadosPayload()

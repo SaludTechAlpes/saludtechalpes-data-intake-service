@@ -3,31 +3,34 @@ from dataclasses import dataclass, field
 from src.seedwork.infraestructura.schema.v1.comandos import (ComandoIntegracion)
 
 class ComandoAnonimizarDatosPayload(ComandoIntegracion):
-    ruta_imagen = String()
-    ruta_metadatos = String()
+    id_imagen_importada = String()
+    ruta_imagen_importada = String()
+    ruta_metadatos_importados = String()
+    evento_a_fallar = String()
 
 class ComandoAnonimizarDatos(ComandoIntegracion):
     data = ComandoAnonimizarDatosPayload()
 
-class ComandoAgruparDatosPayload(ComandoIntegracion):
-    id_imagen = String()
+class ComandoRevetirAnonimizacionDatosPayload(ComandoIntegracion):
+    id_imagen_anonimizada = String()
+    es_compensacion = Boolean()
+
+class ComandoRevertirAnonimizacionDatos(ComandoIntegracion):
+    data = ComandoRevetirAnonimizacionDatosPayload()
+
+class ComandoMapearDatosPayload(ComandoIntegracion):
+    id_imagen_importada = String()
+    id_imagen_anonimizada = String()
     etiquetas_patologicas = Array(String())
     ruta_imagen_anonimizada = String()
+    evento_a_fallar = String()
 
-class ComandoAgruparDatos(ComandoIntegracion):
-    data = ComandoAnonimizarDatosPayload()
+class ComandoMapearDatos(ComandoIntegracion):
+    data = ComandoMapearDatosPayload()
 
-class ComandoRevertirAnonimizacionPayload(ComandoIntegracion):
-    ruta_imagen = String()
-    ruta_metadatos = String()
+class ComandoRevetirMapeoPayload(ComandoIntegracion):
+    id_imagen_mapeada = String()
+    es_compensacion = Boolean()
 
-class ComandoRevertirAnonimizacion(ComandoIntegracion):
-    data = ComandoAnonimizarDatosPayload()
-
-class ComandoRevertirAgrupamientoPayload(ComandoIntegracion):
-    id_imagen = String()
-    etiquetas_patologicas = Array(String())
-    ruta_imagen_anonimizada = String()
-
-class ComandoRevertirAgrupamiento(ComandoIntegracion):
-    data = ComandoAnonimizarDatosPayload()
+class ComandoRevertirMapeoDatos(ComandoIntegracion):
+    data = ComandoRevetirMapeoPayload()

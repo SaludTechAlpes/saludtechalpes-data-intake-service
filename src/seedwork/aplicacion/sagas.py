@@ -5,6 +5,10 @@ from dataclasses import dataclass
 from .comandos import ejecutar_commando
 import uuid
 import datetime
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class CoordinadorSaga(ABC):
     id_correlacion: uuid.UUID
