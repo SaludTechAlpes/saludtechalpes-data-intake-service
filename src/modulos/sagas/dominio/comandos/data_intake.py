@@ -14,4 +14,7 @@ class RevertirImportacionDatosComando(ComandoDominio):
     id_imagen_importada: Optional[str] = None
     es_compensacion: Optional[bool] = True
 
+
+
+    
     
