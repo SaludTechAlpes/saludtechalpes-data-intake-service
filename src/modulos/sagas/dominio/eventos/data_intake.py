@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from typing import Optional
 from src.seedwork.dominio.eventos import EventoDominio
 
-
 @dataclass
 class DatosImportadosEvento(EventoDominio):
     id_imagen_importada: Optional[str] = None
