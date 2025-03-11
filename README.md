@@ -32,6 +32,10 @@ Este módulo maneja la ingesta de datos antes de ser anonimizados. Según la arq
 - **`eventos.py`**: Define los eventos de dominio relacionados con la anonimización de datos.
 - **`comandos.py`**: Define los comandos ejecutados dentro del proceso de anonimización.
 
+#### **2.2 `sagas`**
+
+Este módulo maneja la saga de la transacción. Se utilizó un Coordinador, entonces solo escucha los eventos de fallo, y coordina los comandos de compensación
+
 ### **3. `src/seedwork`**
 
 Este módulo contiene código reutilizable para todas las aplicaciones dentro del sistema.
