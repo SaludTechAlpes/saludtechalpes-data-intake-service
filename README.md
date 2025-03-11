@@ -20,7 +20,7 @@ Contiene la configuración del proyecto:
 
 ### **2.** **`src/modulos`**
 
-Aquí se encuentran los módulos principales del sistema.
+Aquí se encuentran los módulos principales del sistema. Se agregó el módulo de "Sagas"
 
 #### **2.1 `ingesta`**
 
@@ -105,26 +105,24 @@ curl -X GET http://localhost:5000/health
 
 ### **2. Simular ingesta de datos**
 
-**Endpoint:** `GET /simular-ingesta-evento`
+**Endpoint:** `POST /simular-ingesta-datos`
 
-**Descripción:** Envía un evento de ingesta de datos ficticio a Pulsar, lo que comienza todo el proceso de anonimización y mapeo.
+```json
+{
+  "evento_a_fallar": "DataFramesGenerados",
+}
+```
+
+**Descripción:** Simula la ingesta de datos lo que comienza todo el proceso de ingesta, anonimización, mapeo y transformación.
 
 **Ejemplo de solicitud con curl:**
 
 ```bash
-curl -X GET http://localhost:5000/simular-ingesta-evento
-```
-
-**Respuesta:**
-
-```json
-{
-  "message": "Evento enviado a Pulsar"
-}
+curl -X GET http://localhost:5000/simular-ingesta-datos
 ```
 
 ## 📌 **Notas Finales**
 
-Este servicio es solo una parte del sistema **SaludTech Alpes** y debe comunicarse con otros servicios para funcionar correctamente.
+Este servicio es solo una parte del sistema **SaludTech Alpes** y debe comunicarse con otros servicios para funcionar correctamente. Para correr todo el sistema, dirigirse al repositorio https://github.com/SaludTechAlpes/saludtechalpes-infrastructure.
 
 ---
