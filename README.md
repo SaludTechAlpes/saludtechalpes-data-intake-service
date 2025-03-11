@@ -44,13 +44,6 @@ Este módulo contiene código reutilizable para todas las aplicaciones dentro de
 - **`dominio`**: Contiene las abstracciones de entidades, eventos, objetos de valor, reglas de negocio y repositorios.
 - **`infraestructura`**: Define implementaciones genéricas de consumidores de eventos, repositorios y en general puertos.
 
-## 🔄 **Flujo de Trabajo del Sistema**
-
-El sistema sigue un flujo basado en **eventos y comandos**:
-
-1. **Importe de datos**: Mediante un endpoint se simula el evento **`DatosImportadosEvento`**.
-2. **Ingesta de datos**: El módulo de ingesta emite el evento **`DatosIngestadosEvento`**.
-
 ## 🚀 **Cómo Ejecutar la Aplicación**
 
 ### **1. Configuración previa (si no se usa Gitpod)**
@@ -116,6 +109,8 @@ curl -X GET http://localhost:5000/health
   "evento_a_fallar": "DataFramesGenerados",
 }
 ```
+
+El parametro `evento_a_fallar` representa el evento que queremos que falle, para que empiece el proceso de compensación. Los posibles valores son: `DatosImportados`, `DatosAnonimizados`, `DatosAgrupados`, `DataFramesGenerados`.
 
 **Descripción:** Simula la ingesta de datos lo que comienza todo el proceso de ingesta, anonimización, mapeo y transformación.
 
